@@ -1,0 +1,48 @@
+# Variables
+@baseUrl = http://localhost:8082
+@int = {{$randomInt 1000 9999}}
+@name = {{$randomName}}
+# @authToken = {{login.response.body.message}}
+@addeduserId = {{create.response.body.insertedId.$oid}}
+
+### Get all users
+GET {{baseUrl}}/users HTTP/1.1
+
+### Add a user
+# @name create
+POST {{baseUrl}}/user HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "John {{int}}",
+    "email": "{{int}}@example.com",
+    "phone": 711{{int}}56,
+    "status": true
+}
+
+### Find a specific user
+GET {{baseUrl}}/user/{{addeduserId}}
+
+### Update added user
+PUT {{baseUrl}}/user/{{addeduserId}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "status": false,
+    "name": "Changed Name"
+}
+
+### Update a specific user
+PUT {{baseUrl}}/user/63dbf66509657dbfc1b99ea0
+Content-Type: application/json
+
+{
+    "name": "Changed Name",
+    "status": false
+}
+
+### Delete a user
+DELETE {{baseUrl}}/user/{{addeduserId}}
+
+### Delete specific
+DELETE {{baseUrl}}/user/63dbf24109657dbfc1b99e97
