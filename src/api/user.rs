@@ -1,10 +1,11 @@
 use crate::{models::user::User, repository::mongodb::MongoRepo};
 use actix_web::{
-    post, get, put, delete,
+    post, get, put, patch, delete,
     web::{Data, Json, Path},
     HttpResponse,
 };
 use mongodb::bson::oid::ObjectId;
+// use crate::{helpers::error::ReturnError}
 
 #[post("/user")]
 pub async fn create_user(db: Data<MongoRepo>, new_user: Json<User>) -> HttpResponse {
@@ -37,11 +38,7 @@ pub async fn get_user(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
 }
 
 #[put("/user/{id}")]
-pub async fn update_user(
-    db: Data<MongoRepo>,
-    path: Path<String>,
-    new_user: Json<User>,
-) -> HttpResponse {
+pub async fn update_user( db: Data<MongoRepo>, path: Path<String>, new_user: Json<User>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -49,7 +46,7 @@ pub async fn update_user(
     let data = User {
         id: Some(ObjectId::parse_str(&id).unwrap()),
         name: new_user.name.to_owned(),
-        email:if !new_user.email.is_empty() { email } else { new_user.email.to_owned() },
+        email: new_user.email.to_owned(),
         phone: new_user.phone.to_owned(),
         status: new_user.status.to_owned(),
     };
@@ -63,7 +60,44 @@ pub async fn update_user(
                     Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
                 };
             } else {
-                return HttpResponse::NotFound().body("No user found with specified ID");
+                return HttpResponse::NotFound().json("No user found with specified ID");
+            }
+        }
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}
+
+#[patch("/user/{id}")]
+pub async fn patch_user( db: Data<MongoRepo>, path: Path<String>, mut new_user: Json<User>) -> HttpResponse {
+    let id = path.into_inner();
+    if id.is_empty() {
+        return HttpResponse::BadRequest().body("User with specified ID not found!");
+    };
+    let old_user = db.get_user(&id).await.unwrap();
+    if new_user.name.is_none() {new_user.name = old_user.name };
+    if new_user.email.is_none() { new_user.email = old_user.email };
+    if new_user.phone.is_none() { new_user.phone = old_user.phone };
+    if !new_user.status.is_some() { new_user.status = old_user.status };
+
+    let data = User {
+        id: Some(ObjectId::parse_str(&id).unwrap()),
+        name: new_user.name.to_owned(),
+        email: new_user.email.to_owned(),
+        phone: new_user.phone.to_owned(),
+        status:  new_user.status.to_owned(),
+    };
+
+    let update_result = db.patch_user(&id, data).await;
+    match update_result {
+        Ok(update) => {
+            if update.matched_count == 1 {
+                let updated_user_info = db.get_user(&id).await;
+                return match updated_user_info {
+                    Ok(user) => HttpResponse::Ok().json(user),
+                    Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+                };
+            } else {
+                return HttpResponse::NotFound().json("User with specified ID not found!");
             }
         }
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),

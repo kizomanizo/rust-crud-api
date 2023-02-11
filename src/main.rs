@@ -4,10 +4,11 @@
 mod api;
 mod models;
 mod repository;
+mod helpers;
 
 // My imports for this project
 use actix_web::{web::Data, App, HttpServer};
-use api::user::{create_user, get_user, update_user, delete_user, get_all_users};
+use api::user::{create_user, get_user, update_user, patch_user, delete_user, get_all_users};
 use repository::mongodb::MongoRepo;
 
 #[actix_web::main]
@@ -20,6 +21,7 @@ async fn main() -> std::io::Result<()> {
             .service(create_user)
             .service(get_user)
             .service(update_user)
+            .service(patch_user)
             .service(delete_user)
             .service(get_all_users)
     })

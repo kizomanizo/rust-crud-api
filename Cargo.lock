@@ -420,6 +420,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "crud-api"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "dotenv",
+ "futures",
+ "mongodb",
+ "serde",
+]
+
+[[package]]
 name = "crypto-common"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -901,17 +912,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "445dde2150c55e483f3d8416706b97ec8e8237c307e5b7b4b8dd15e6af2a0730"
 dependencies = [
  "wasm-bindgen",
-]
-
-[[package]]
-name = "jwt-auth"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "dotenv",
- "futures",
- "mongodb",
- "serde",
 ]
 
 [[package]]

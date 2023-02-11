@@ -23,17 +23,18 @@ Content-Type: application/json
 ### Find a specific user
 GET {{baseUrl}}/user/{{addeduserId}}
 
-### Update added user
-PUT {{baseUrl}}/user/{{addeduserId}} HTTP/1.1
+### Patch added user
+PATCH {{baseUrl}}/user/{{addeduserId}} HTTP/1.1
 Content-Type: application/json
 
 {
-    "status": false,
-    "name": "Changed Name"
+    "name": "Changed Name",
+    "email": "changed_email@example.com",
+    "status": false
 }
 
 ### Update a specific user
-PUT {{baseUrl}}/user/63dbf66509657dbfc1b99ea0
+PUT {{baseUrl}}/user/63dbf47109657dbfc1b99e9d
 Content-Type: application/json
 
 {
@@ -45,4 +46,4 @@ Content-Type: application/json
 DELETE {{baseUrl}}/user/{{addeduserId}}
 
 ### Delete specific
-DELETE {{baseUrl}}/user/63dbf24109657dbfc1b99e97
+DELETE {{baseUrl}}/user/63e65a0366242b0822dcb5fb

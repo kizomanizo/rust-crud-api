@@ -3,7 +3,7 @@ extern crate dotenv;
 use dotenv::dotenv;
 
 use mongodb::{
-    bson::{ extjson::de::Error, oid::ObjectId, doc },
+    bson::{ extjson::de::Error, oid::ObjectId, doc }, //Add , Document if you decomment patchi method
     results::{ InsertOneResult, UpdateResult, DeleteResult },
     Client, Collection,
 };
@@ -78,6 +78,49 @@ impl MongoRepo {
             .expect("Error updating user");
         Ok(updated_doc)
     }
+
+    pub async fn patch_user(&self, id: &String, new_user: User) -> Result<UpdateResult, Error> {
+        let obj_id = ObjectId::parse_str(id).unwrap();
+        let filter = doc! {"_id": obj_id};
+        let new_doc = doc! {
+            "$set":
+                {
+                    "id": new_user.id,
+                    "name": new_user.name,
+                    "email": new_user.email,
+                    "phone": new_user.phone,
+                    "status": new_user.status,
+                },
+        };
+        let updated_doc = self
+            .col
+            .update_one(filter, new_doc, None)
+            .await
+            .ok()
+            .expect("Error updating user");
+        Ok(updated_doc)
+    }
+
+    // pub async fn patchi_user(
+    //     &self, id: &String,
+    //     new_user: User
+    // ) -> Result<UpdateResult, Error> {
+    //     let obj_id = ObjectId::parse_str(id).unwrap();
+    //     let filter = doc! {"_id": obj_id};
+    //     let mut doc = Document::new();
+    //     if !new_user.name.is_empty() { doc.insert("name", new_user.name) } else {doc.insert("name", filter.get_str("name").to_owned().unwrap())};
+    //     if !new_user.email.is_empty() { doc.insert("name", new_user.email) }else {doc.insert("email", filter.get_str("email").to_owned().unwrap())};
+    //     if !new_user.phone == 0 { doc.insert("name", new_user.phone) }else {doc.insert("phone", filter.get_i32("phone").to_owned().unwrap())};
+    //     if !new_user.status { doc.insert("name", new_user.status) }else {doc.insert("status", filter.get_str("status").to_owned().unwrap())};
+    //     let new_doc = doc! { "$set": doc };
+    //     let updated_doc = self
+    //         .col
+    //         .update_one(filter, new_doc, None)
+    //         .await
+    //         .ok()
+    //         .expect("Error updating user");
+    //     Ok(updated_doc)
+    // }
 
     // Delete a specific user from MongoDB
     pub async fn delete_user(&self, id: &String) -> Result<DeleteResult, Error> {
